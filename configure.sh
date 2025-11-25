@@ -131,5 +131,8 @@ $BASE_CMD wp plugin install wp-super-cache --activate
 $BASE_CMD wp option update show_on_front 'page'
 $BASE_CMD wp option update page_on_front 5
 
+# Increase base upload size
+$BASE_CMD cp /import_data/htaccess /var/www/html/.htaccess
+
 # Show user URL for admin login
 echo "Log in to admin panel at $GOCONGRESS_URL/wp-admin"
