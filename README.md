@@ -39,3 +39,4 @@
     * **Stackable - Gutenberg Blocks:** Adds layout blocks, patterns, and prebuilt designs to simplify content creation.
     * **WP Super Cache:** Provides server-side page caching for faster load times.
     * **Performance Lab:** Adds client-side performance optimizations from the WordPress core team.
+    * **Members:** Adds fine-grain control over role permissions.
