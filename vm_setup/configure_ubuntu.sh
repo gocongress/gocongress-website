@@ -7,7 +7,7 @@ sudo echo 'export HISTFILESIZE=10000' >> ~/.bashrc
 
 ### DEPENDENCIES
 
-sudo apt install -y git python3 python3-dev python3-venv libaugeas-dev gcc nginx
+sudo apt install -y git python3 python3-dev python3-venv libaugeas-dev gcc nginx make
 
 # Enable nginx
 sudo systemctl enable --now nginx
