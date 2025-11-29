@@ -16,6 +16,10 @@ sudo systemctl enable --now nginx
 sudo cp ./nginx.conf.d/*.conf /etc/nginx/conf.d/
 sudo nginx -t && sudo systemctl reload nginx
 
+sudo cp ./systemd/*.service /etc/systemd/system/
+sudo systemctl enable gocongress-wordpress.service
+sudo systemctl enable gocongress-prizes.service
+
 # Setup certbot:
 if ! command -v certbot &>/dev/null; then
     sudo python3 -m venv /opt/certbot/
@@ -65,3 +69,9 @@ sudo ufw allow 22 # allow SSH first
 sudo ufw allow 80
 sudo ufw allow 443
 sudo ufw --force enable # enable firewall last non-interactively
+
+# Setup local secrets store
+sudo mkdir -pv /opt/secrets
+sudo chown -R $USER:$USER /opt/secrets
+sudo chmod 700 /opt/secrets
+touch /opt/secrets/prizes.env.production

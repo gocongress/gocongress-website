@@ -1,0 +1,15 @@
+[Unit]
+Description=Go Congress Prizes Docker Compose
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/dev/prizes
+ExecStart=make prod-up
+ExecStop=make prod-down
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target
