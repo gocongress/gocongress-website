@@ -16,6 +16,10 @@ sudo systemctl enable --now nginx
 sudo cp ./nginx.conf.d/*.conf /etc/nginx/conf.d/
 sudo nginx -t && sudo systemctl reload nginx
 
+sudo cp ./systemd/*.service /etc/systemd/system/
+sudo systemctl enable gocongress-wordpress.service
+sudo systemctl enable gocongress-prizes.service
+
 # Setup certbot:
 if ! command -v certbot &>/dev/null; then
     sudo python3 -m venv /opt/certbot/
