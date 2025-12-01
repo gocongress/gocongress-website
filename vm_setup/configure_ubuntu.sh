@@ -7,7 +7,32 @@ sudo echo 'export HISTFILESIZE=10000' >> ~/.bashrc
 
 ### DEPENDENCIES
 
-sudo apt install -y git python3 python3-dev python3-venv libaugeas-dev gcc nginx make
+sudo apt install -y git python3 python3-dev python3-venv libaugeas-dev gcc nginx make gnupg pass
+
+### Setup Docker credential helper with pass
+sudo wget https://github.com/docker/docker-credential-helpers/releases/download/v0.9.4/docker-credential-pass-v0.9.4.linux-amd64 -O /usr/local/bin/docker-credential-pass
+sudo chmod +x /usr/local/bin/docker-credential-pass
+
+# Generate GPG key for pass
+# TODO: In a production environment, you would want to protect this key with a passphrase and securely manage it.
+#       The problem is that after the VM reboots, there is no way to enter the passphrase to unlock the key for use by the Docker credential helper.
+#       For now, we are generating a key without a passphrase for simplicity.
+gpg --batch --gen-key <<EOF
+%no-protection
+Key-Type: eddsa
+Key-Curve: ed25519
+Subkey-Type: ecdh
+Subkey-Curve: cv25519
+Name-Real: Docker Credentials
+Name-Email: webmaster@gocongress.org
+Expire-Date: 0
+EOF
+
+# Initialize pass with the generated GPG key
+pass init $(gpg --list-secret-keys --keyid-format LONG | grep ^sec | awk '{print $2}' | cut -d/ -f2)
+
+# Insert a dummy entry to confirm it's working (no passphrase needed)
+echo "pass is initialized" | pass insert docker-credential-helpers/docker-pass-initialized-check
 
 # Enable nginx
 sudo systemctl enable --now nginx
@@ -60,6 +85,15 @@ if ! command -v docker &>/dev/null; then
   }
 }
 EOF
+    test -f /etc/docker/config.json || cat <<'EOF' | sudo tee /etc/docker/config.json
+{
+  "credsStore": "pass",
+  "credHelpers": {
+    "ghcr.io": "pass",
+    "docker.io": "pass"
+  }
+}
+EOF
     # ensure service is enabled just in case:
     sudo systemctl enable --now docker.service
 fi
@@ -75,3 +109,13 @@ sudo mkdir -pv /opt/secrets
 sudo chown -R $USER:$USER /opt/secrets
 sudo chmod 700 /opt/secrets
 touch /opt/secrets/prizes.env.production
+
+echo "Setup complete!"
+echo ""
+echo "Login to GitHub Container Registry with your username and a personal access token with 'read:packages' scope:"
+echo "Run the following command and enter your token when prompted:"
+echo "docker login ghcr.io -u YOUR_USERNAME --password-stdin"
+echo ""
+echo "After logging in, you can test pulling an image from GHCR to verify that the credential helper is working:"
+echo "docker pull ghcr.io/gocongress/prizes/api:main"
+echo ""
