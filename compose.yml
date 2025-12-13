@@ -17,7 +17,9 @@ services:
       - 3306
       - 33060
   wordpress:
-    image: wordpress:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.wp
     volumes:
       - wp_data:/var/www/html
     ports:

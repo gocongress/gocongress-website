@@ -1,0 +1,10 @@
+FROM wordpress:latest
+
+# install some extra packages:
+USER root
+
+# imagemagick *may* not actually be needed, but for just in case it is added here (was manually installed as part of resolving an image cropping issue):
+RUN apt-get update && apt-get install -y --no-install-recommends imagemagick
+
+# Switch back to www-data for safety
+USER www-data
