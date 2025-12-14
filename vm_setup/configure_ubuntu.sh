@@ -51,17 +51,20 @@ if ! command -v certbot &>/dev/null; then
     sudo /opt/certbot/bin/pip install --upgrade pip
     sudo /opt/certbot/bin/pip install certbot certbot-nginx
     sudo ln -s /opt/certbot/bin/certbot /usr/bin/certbot
-    sudo certbot --nginx --non-interactive --agree-tos -d gc2026.gocongress.org -m webmaster@gocongress.org
-    sudo certbot --nginx --non-interactive --agree-tos -d prizes.gocongress.org -m webmaster@gocongress.org
     # job to automatically renew cert and trigger nginx reload when renewed:
     echo "0 0,12 * * * root /opt/certbot/bin/python -c 'import random; import time; time.sleep(random.random() * 3600)' && sudo certbot renew -q --deploy-hook 'systemctl reload nginx'" | sudo tee -a /etc/crontab > /dev/null
     # job to once a month upgrade certbot:
     echo "0 3 1 * * root /opt/certbot/bin/pip install --upgrade certbot certbot-nginx > /var/log/certbot_update.log 2>&1" | sudo tee -a /etc/crontab > /dev/null
-    # Enable HTTP/2 in Certbot-generated config
-    sudo sed -i 's/listen 443 ssl;/listen 443 ssl http2;/' /etc/nginx/conf.d/gc2026.gocongress.org.conf
-    sudo sed -i 's/listen 443 ssl;/listen 443 ssl http2;/' /etc/nginx/conf.d/prizes.gocongress.org.conf
-    sudo nginx -t && sudo systemctl reload nginx
 fi
+
+# Configure SSL
+sudo certbot --nginx --non-interactive --agree-tos --redirect -d gocongress.org -d www.gocongress.org -d gc2026.gocongress.org -m webmaster@gocongress.org
+sudo certbot --nginx --non-interactive --agree-tos --redirect -d prizes.gocongress.org -m webmaster@gocongress.org
+
+# Enable HTTP/2 in Certbot-generated config
+sudo sed -i 's/listen 443 ssl;/listen 443 ssl http2;/' /etc/nginx/conf.d/gc2026.gocongress.org.conf
+sudo sed -i 's/listen 443 ssl;/listen 443 ssl http2;/' /etc/nginx/conf.d/prizes.gocongress.org.conf
+sudo nginx -t && sudo systemctl reload nginx
 
 # Install/configure Docker
 if ! command -v docker &>/dev/null; then
